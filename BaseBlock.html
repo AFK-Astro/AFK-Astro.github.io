@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>砼心·智慧学伴</title>
+    <style>
+        :root {
+            --primary: #1a56db; /* 江海蓝 */
+            --primary-hover: #1e40af;
+            --bg: #f8fafc;
+            --white: #ffffff;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'PingFang SC', sans-serif; }
+        body { background: var(--bg); color: var(--text-main); padding: 20px; }
+
+        .app-container { max-width: 800px; margin: 0 auto; }
+        
+        /* 头部 */
+        header { text-align: center; margin-bottom: 30px; }
+        header h1 { font-size: 1.8rem; color: var(--primary); margin-bottom: 5px; }
+        header p { color: var(--text-sub); font-size: 0.9rem; }
+
+        /* 顶部导航标签 */
+        .tabs { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .tab-btn {
+            padding: 10px 25px;
+            border: none;
+            background: var(--white);
+            color: var(--text-sub);
+            font-size: 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+        .tab-btn.active { background: var(--primary); color: var(--white); }
+
+        /* 卡片样式 */
+        .card { background: var(--white); border-radius: 15px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        
+        /* 输入区域 */
+        .input-area { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; }
+        .input-group { display: flex; gap: 10px; align-items: center; }
+        input, textarea, select {
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 100%;
+            outline: none;
+        }
+        input:focus, textarea:focus { border-color: var(--primary); }
+        
+        .add-btn {
+            padding: 12px 25px;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: 0.3s;
+        }
+        .add-btn:hover { background: var(--primary-hover); }
+
+        /* 列表区域 */
+        .list-container { display: none; }
+        .list-container.active { display: block; }
+        
+        .list-item { border-left: 4px solid var(--primary); transition: all 0.3s; position: relative; }
+        .list-item.mastery-red { border-left-color: var(--danger); }
+        .list-item.mastery-yellow { border-left-color: var(--warning); }
+        .list-item.mastery-green { border-left-color: var(--success); }
+
+        .item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .item-title { font-weight: bold; font-size: 1.1rem; }
+        .item-date { font-size: 0.8rem; color: var(--text-sub); }
+        .item-content { color: var(--text-sub); line-height: 1.6; font-size: 0.95rem; }
+        .delete-btn {
+            position: absolute; top: 20px; right: 0;
+            background: transparent; color: var(--danger);
+            border: none; cursor: pointer; font-size: 0.8rem; display: none;
+        }
+        .list-item:hover .delete-btn { display: block; }
+
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <h1>砼心·智慧学伴 🧱</h1>
+        <p>江苏海洋大学 · AI创意小工具大赛</p >
+    </header>
+
+    <!-- 导航标签 -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('homework')">📚 作业计划</button>
+        <button class="tab-btn" onclick="switchTab('mistake')">❌ 错题本</button>
+        <button class="tab-btn" onclick="switchTab('note')">✍️ 学习笔记</button>
+    </div>
+
+    <!-- 1. 作业模块 -->
+    <div id="homework" class="list-container active">
+        <div class="card input-area">
+            <div class="input-group">
+                <input type="text" id="hw-subject" placeholder="科目（如：高数、结构设计）">
+                <input type="date" id="hw-date">
+                <button class="add-btn" onclick="addHomework()">添加作业</button>
+            </div>
+            <input type="text" id="hw-desc" placeholder="作业详细内容描述...">
+        </div>
+        <div id="hw-list"></div>
+    </div>
+
+    <!-- 2. 错题模块 -->
+    <div id="mistake" class="list-container">
+        <div class="card input-area">
+            <input type="text" id="mistake-subject" placeholder="科目/章节">
+            <input type="text" id="mistake-title" placeholder="错题标题/题型">
+            <textarea id="mistake-analysis" rows="3" placeholder="错误原因分析 & 正确解法..."></textarea>
+            <div class="input-group">
+                <label style="font-size:0.9rem; color:var(--text-sub)">掌握程度：</label>
+                <select id="mistake-level">
+                    <option value="red">🔴 完全不会</option>
+                    <option value="yellow">🟡 似懂非懂</option>
+                    <option value="green">🟢 已经掌握</option>
+                </select>
+                <button class="add-btn" onclick="addMistake()">记录错题</button>
+            </div>
+        </div>
+        <div id="mistake-list"></div>
+    </div>
+
+    <!-- 3. 笔记模块 -->
+    <div id="note" class="list-container">
+        <div class="card input-area">
+            <input type="text" id="note-title" placeholder="笔记标题（如：混凝土应力应变关系）">
+            <textarea id="note-content" rows="5" placeholder="在此记录你的学习笔记..."></textarea>
+            <button class="add-btn" onclick="addNote()">保存笔记</button>
+        </div>
+        <div id="note-list"></div>
+    </div>
+</div>
+
+<script>
+    // 初始化数据存储
+    let data = { homework: [], mistake: [], note: [] };
+    
+    // 页面加载时读取本地数据
+    function loadData() {
+        if(localStorage.getItem('learning_data')) {
+            data = JSON.parse(localStorage.getItem('learning_data'));
+            render('homework'); render('mistake'); render('note');
+        }
+    }
+
+    // 保存数据到本地
+    function saveData() {
+        localStorage.setItem('learning_data', JSON.stringify(data));
+    }
+
+    // 获取当前时间字符串
+    function getNow() {
+        const d = new Date();
+        return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')} ${d.getHours()}:${d.getMinutes().toString().padStart(2,'0')}`;
+    }
+
+    // 1. 添加作业
+    function addHomework() {
+        const sub = document.getElementById('hw-subject').value;
+        const date = document.getElementById('hw-date').value;
+        const desc = document.getElementById('hw-desc').value;
+        if(!sub || !desc) return alert("请补全科目和作业内容！");
+        
+        data.homework.unshift({ id: Date.now(), sub, date, desc, time: getNow() });
+        document.getElementById('hw-subject').value = '';
+        document.getElementById('hw-desc').value = '';
+        saveData(); render('homework');
+    }
+
+    // 2. 添加错题
+    function addMistake() {
+        const sub = document.getElementById('mistake-subject').value;
+        const title = document.getElementById('mistake-title').value;
+        const analysis = document.getElementById('mistake-analysis').value;
+        const level = document.getElementById('mistake-level').value;
+        if(!title || !analysis) return alert("请补全错题标题和分析！");
+
+        data.mistake.unshift({ id: Date.now(), sub, title, analysis, level, time: getNow() });
+        document.getElementById('mistake-title').value = '';
+        document.getElementById('mistake-analysis').value = '';
+        saveData(); render('mistake');
+    }
+
+    // 3. 添加笔记
+    function addNote() {
+        const title = document.getElementById('note-title').value;
+        const content = document.getElementById('note-content').value;
+        if(!title || !content) return alert("请补全笔记标题和内容！");
+
+        data.note.unshift({ id: Date.now(), title, content, time: getNow() });
+        document.getElementById('note-title').value = '';
+        document.getElementById('note-content').value = '';
+        saveData(); render('note');
+    }
+
+    // 删除功能
+    function deleteItem(type, id) {
+        if(!confirm("确定要删除这条记录吗？")) return;
+        data[type] = data[type].filter(item => item.id !== id);
+        saveData(); render(type);
+    }
+
+    // 渲染列表
+    function render(type) {
+        let html = '';
+        let items = data[type];
+        
+        items.forEach(item => {
+            if (type === 'homework') {
+                html += `
+                    <div class="card list-item">
+                        <button class="delete-btn" onclick="deleteItem('${type}', ${item.id})">删除</button>
+                        <div class="item-header"><span class="item-title">📚 ${item.sub}</span><span class="item-date">📅 ${item.date || '未设日期'}</span></div>
+                        <div class="item-content">${item.desc}</div>
+                        <div class="item-date" style="margin-top:8px;">添加时间：${item.time}</div>
+                    </div>`;
+            } else if (type === 'mistake') {
+                html += `
+                    <div class="card list-item mastery-${item.level}">
+                        <button class="delete-btn" onclick="deleteItem('${type}', ${item.id})">删除</button>
+                        <div class="item-header"><span class="item-title">❌ ${item.title} (${item.sub})</span><span class="item-date">📅 ${item.time.split(' ')[0]}</span></div>
+                        <div class="item-content">💡 分析：${item.analysis.replace(/\n/g, '<br>')}</div>
+                    </div>`;
+            } else if (type === 'note') {
+                html += `
+                    <div class="card list-item">
+                        <button class="delete-btn" onclick="deleteItem('${type}', ${item.id})">删除</button>
+                        <div class="item-header"><span class="item-title">✍️ ${item.title}</span><span class="item-date">📅 ${item.time.split(' ')[0]}</span></div>
+                        <div class="item-content">${item.content.replace(/\n/g, '<br>')}</div>
+                    </div>`;
+            }
+        });
+        document.getElementById(`${type}-list`).innerHTML = html;
+    }
+
+    // 切换标签页
+    function switchTab(id) {
+        document.querySelectorAll('.list-container').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    // 页面加载初始化
+    window.onload = loadData;
+</script>
+
+</body>
+</html>
